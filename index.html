@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Calendar</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+  <style>
+    /* General Styles */
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f4f4f9;
+      overflow: hidden;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      animation: fireEffect 1.5s ease-out forwards;
+    }
+    .header h1 {
+      font-size: 2.5rem;
+      color: #007bff;
+      margin: 0;
+    }
+    .calendar {
+      background: #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      padding: 30px;
+      text-align: center;
+      width: 95%;
+      max-width: 600px;
+      animation: fireEffect 1.5s ease-out forwards;
+      opacity: 0;
+    }
+    .calendar header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .calendar header h1 {
+      font-size: 2rem;
+      margin: 0;
+    }
+    .calendar header button {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-size: 1.25rem;
+    }
+    .calendar header button:hover {
+      background: #0056b3;
+    }
+    .calendar table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+      font-size: 1.25rem;
+    }
+    .calendar th {
+      color: #555;
+      font-weight: bold;
+      padding: 10px;
+    }
+    .calendar td {
+      width: 14.28%;
+      padding: 15px;
+      text-align: center;
+      border-radius: 10px;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .calendar td:hover {
+      background: #97c8f3;
+      color: #333;
+    }
+    .calendar .today {
+      border: 3px solid #007bff;
+    }
+    .calendar .present {
+      background: #28a745;
+      color: #fff;
+      animation: bounceEffect 0.3s ease-out;
+    }
+    .calendar .absent {
+      background: #f4a20a;
+      color: #fff;
+      animation: shakeEffect 0.3s ease-out;
+    }
+    .summary {
+      margin-top: 20px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #333;
+      animation: fireEffect 1.5s ease-out forwards;
+      opacity: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 600px;
+    }
+    .summary span {
+      display: inline-block;
+    }
+    .warning {
+      margin-top: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #dc3545;
+      padding: 10px;
+      border: 2px dashed #bdb123;
+      border-radius: 10px;
+      background-color: #fff6f6;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: fireEffect 1.5s ease-out forwards;
+      opacity: 0;
+      width: 50%;
+      max-width: 350px;
+    }
+    .warning i {
+      font-size: 1.25rem;
+    }
+    .footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 1rem;
+      color: #777;
+      animation: fireEffect 1.5s ease-out forwards;
+      opacity: 0;
+    }
+    .footer a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Keyframes for Fire Animation */
+    @keyframes fireEffect {
+      0% {
+        opacity: 0;
+        transform: scale(0.9);
+        filter: brightness(0.5);
+      }
+      50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+        filter: brightness(1.5);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+        filter: brightness(1);
+      }
+    }
+
+    /* Keyframes for Bounce Animation (Present) */
+    @keyframes bounceEffect {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.2);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    /* Keyframes for Shake Animation (Absent) */
+    @keyframes shakeEffect {
+      0% {
+        transform: translateX(0);
+      }
+      25% {
+        transform: translateX(-5px);
+      }
+      50% {
+        transform: translateX(5px);
+      }
+      75% {
+        transform: translateX(-5px);
+      }
+      100% {
+        transform: translateX(0);
+      }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 2rem;
+      }
+      .calendar header h1 {
+        font-size: 1.5rem;
+      }
+      .calendar header button {
+        font-size: 1rem;
+        padding: 8px 12px;
+      }
+      .calendar td {
+        padding: 10px;
+      }
+      .footer {
+        font-size: 0.9rem;
+      }
+      .warning {
+        font-size: 0.6rem;
+        width: 70%;
+      }
+    }
+
+    /* Button hover effect */
+    #clear-all {
+      background: #fff;
+      color: #dc3545;
+      border: 2px solid #dc3545;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    #clear-all:hover {
+      background: #dc3545;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <h1>Attendance Tracker</h1>
+  </div>
+
+  <!-- Calendar -->
+  <div class="calendar">
+    <header>
+      <button id="prev">❮</button>
+      <h1 id="month-year"></h1>
+      <button id="next">❯</button>
+    </header>
+    <table>
+      <thead>
+        <tr>
+          <th>Sun</th>
+          <th>Mon</th>
+          <th>Tue</th>
+          <th>Wed</th>
+          <th>Thu</th>
+          <th>Fri</th>
+          <th>Sat</th>
+        </tr>
+      </thead>
+      <tbody id="calendar-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary" id="attendance-summary">
+    <span>Total Attendance: 0</span>
+    <button id="clear-all">Clear All</button>
+  </div>
+
+  <!-- Warning -->
+  <div class="warning">
+    <i>⚠</i>
+    Warning: Clearing your browser cache will permanently delete all attendance data.
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>Press one time for <b><i>single</i></b> session, while
+    pressing two times will consider as <b><i>double</i></b> session.</p>
+    <p>© Attendance Tracker 2025 Developed by <a href="https://www.facebook.com/chowdhury.shaheb.143">Md. Srabon Chowdhury</a></p>
+  </div>
+
+  <script>
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    const today = new Date();
+    let currentMonth = today.getMonth();
+    let currentYear = today.getFullYear();
+
+    const monthYearElement = document.getElementById("month-year");
+    const calendarBody = document.getElementById("calendar-body");
+    const summaryElement = document.getElementById("attendance-summary");
+
+    const attendanceKey = "studentAttendance";
+    const attendanceData = JSON.parse(localStorage.getItem(attendanceKey)) || {};
+
+    function saveAttendanceData() {
+      localStorage.setItem(attendanceKey, JSON.stringify(attendanceData));
+    }
+
+    function updateSummary() {
+      let totalAttendance = 0;
+      Object.values(attendanceData).forEach(status => {
+        if (status === "present") totalAttendance += 1;
+        else if (status === "absent") totalAttendance += 2;
+      });
+      summaryElement.querySelector("span").textContent = `Total Attendance: ${totalAttendance}`;
+    }
+
+    function renderCalendar(month, year) {
+      monthYearElement.textContent = `${monthNames[month]} ${year}`;
+      calendarBody.innerHTML = "";
+
+      const firstDay = new Date(year, month).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      let date = 1;
+      for (let i = 0; i < 6; i++) {
+        const row = document.createElement("tr");
+        for (let j = 0; j < 7; j++) {
+          const cell = document.createElement("td");
+          if (i === 0 && j < firstDay) {
+            row.appendChild(cell);
+          } else if (date > daysInMonth) {
+            break;
+          } else {
+            cell.textContent = date;
+            const dateKey = `${year}-${month}-${date}`;
+
+            if (attendanceData[dateKey] === "present") {
+              cell.classList.add("present");
+            } else if (attendanceData[dateKey] === "absent") {
+              cell.classList.add("absent");
+            }
+
+            if (
+              date === today.getDate() &&
+              month === today.getMonth() &&
+              year === today.getFullYear()
+            ) {
+              cell.classList.add("today");
+            }
+
+            cell.addEventListener("click", () => {
+              if (attendanceData[dateKey] === "present") {
+                attendanceData[dateKey] = "absent";
+                cell.classList.remove("present");
+                cell.classList.add("absent");
+              } else if (attendanceData[dateKey] === "absent") {
+                delete attendanceData[dateKey];
+                cell.classList.remove("absent");
+              } else {
+                attendanceData[dateKey] = "present";
+                cell.classList.add("present");
+              }
+              saveAttendanceData();
+              updateSummary();
+            });
+
+            row.appendChild(cell);
+            date++;
+          }
+        }
+        calendarBody.appendChild(row);
+      }
+      updateSummary();
+    }
+
+    document.getElementById("prev").addEventListener("click", () => {
+      currentMonth--;
+      if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+      }
+      renderCalendar(currentMonth, currentYear);
+    });
+
+    document.getElementById("next").addEventListener("click", () => {
+      currentMonth++;
+      if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+      }
+      renderCalendar(currentMonth, currentYear);
+    });
+
+    // Clear All Button Functionality
+    document.getElementById("clear-all").addEventListener("click", () => {
+      if (confirm("Are you sure you want to clear all attendance data? This action cannot be undone.")) {
+        localStorage.removeItem(attendanceKey);
+        Object.keys(attendanceData).forEach(key => delete attendanceData[key]);
+        renderCalendar(currentMonth, currentYear);
+      }
+    });
+
+    renderCalendar(currentMonth, currentYear);
+  </script>
+</body>
+</html>
